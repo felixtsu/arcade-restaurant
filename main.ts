@@ -1,18 +1,12 @@
-
-restaurant.init()
-
-let orderCustomers:Sprite[] = []
-
-restaurant.onCustomerOrder((customer:Sprite, dish:string) => {
-    orderCustomers.push(customer)
-})
-
-restaurant.onDishReady((dish:string) => {
-
+restaurant.onDishReady(function (dish) {
     for (let customer of orderCustomers) {
         if (sprites.readDataString(customer, "ORDER") == dish) {
-            return customer
+            restaurant.callCustomerToCollect(customer)
         }
     }
-    return null
 })
+restaurant.onCustomerOrder(function (customer, dish) {
+    orderCustomers.push(customer)
+})
+let orderCustomers: Sprite[] = []
+restaurant.init()

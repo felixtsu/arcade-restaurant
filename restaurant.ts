@@ -7,7 +7,7 @@ namespace restaurant {
 
 
     let customerOrderHandler: (customer: Sprite, dish:string)=>void = null
-    let dishReadyHandler: (dish: string) => Sprite = null
+    let dishReadyHandler: (dish: string) => void = null
     
     let waitStaff:Sprite = null
     let cookStaff:Sprite = null
@@ -139,7 +139,7 @@ namespace restaurant {
                     story.spriteSayText(cookStaff, "扔了")
                      
                 }  else {
-                    let userJudgeCustomer = dishReadyHandler(dish)
+                    dishReadyHandler(dish)
                     story.spriteSayText(cookStaff, "请" + sprites.readDataNumber(userJudgeCustomer, ORDER_NO) + "号客人取餐")
                     story.spriteMoveToLocation(userJudgeCustomer, 120, 72, 80)
 
@@ -177,6 +177,8 @@ namespace restaurant {
     }
 
 
+    //% blockId=on_init
+    //% block="开始餐厅的故事"
     export function init() {
         
         CUSTOMER_IMAGES.push(assets.image`customer1`)
@@ -260,10 +262,18 @@ namespace restaurant {
 
 
     //% blockId=on_dish_ready
-    //% block="叫号取餐"
+    //% block="出餐"
     //% draggableParameters
-    export function onDishReady(cb:(dish:string) => Sprite) {
+    export function onDishReady(cb:(dish:string) => void) {
         dishReadyHandler = cb;
+    }
+
+    let userJudgeCustomer :Sprite = null
+
+    //% blockId=call_customer_to_collect
+    //% block="叫 $customer=variables_get(mySprite) 取餐"
+    export function callCustomerToCollect(customer : Sprite) {
+        userJudgeCustomer = customer
     }
 
     
