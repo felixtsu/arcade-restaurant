@@ -53,21 +53,23 @@ namespace restaurant {
         orderingLock = true
         let orderingCustomer = waitingForOrderCustomers[0]
 
-        story.startCutscene(() => {
+        story.startCutsceneOf(1001, () => {
             let dish = randomPick(MENU)
+            
             sprites.setDataString(orderingCustomer, ORDER, dish)
             sprites.setDataNumber(orderingCustomer, ORDER_NO, orderNo)
-            story.spriteSayText(waitStaff, "要吃点什么?")
-            story.spriteSayText(orderingCustomer,dish )
-            story.spriteSayText(waitStaff, "好的,一共是5元")
-            story.spriteSayText(orderingCustomer, "这是5元")
-            story.spriteSayText(waitStaff, "你的号码是" + orderNo)
+            story.spriteSayText(waitStaff, "要吃点什么?", 15, 1, story.TextSpeed.VeryFast)
+            story.spriteSayText(orderingCustomer, dish, 15, 1, story.TextSpeed.VeryFast)
+            // story.spriteSayText(waitStaff, "好的,一共是5元", 15, 1, story.TextSpeed.VeryFast)
+            // story.spriteSayText(orderingCustomer, "这是5元", 15, 1, story.TextSpeed.VeryFast)
+            story.spriteSayText(waitStaff, "好的，你的号码是" + orderNo, 15, 1, story.TextSpeed.VeryFast)
             orderNo++;
-            story.spriteSayText(waitStaff, "请等叫号取餐")
+            story.spriteSayText(waitStaff, "请等叫号取餐", 15, 1, story.TextSpeed.VeryFast)
 
-            story.spriteMoveToLocation(orderingCustomer, 80 + randint(-32, 32), 88 + randint(-16, 16), 80)
+            story.spriteMoveToLocation(orderingCustomer, 120 + randint(-32, 32), 88 + randint(-16, 16), 80)
 
-            deferPush(dish)
+            customerOrders.push(dish)
+            
             if (customerOrderHandler != null) {
                 customerOrderHandler(orderingCustomer, dish)
             }
@@ -107,14 +109,6 @@ namespace restaurant {
         return null;
     }
 
-    function deferPush(dish:string) {
-        control.runInParallel(()=>{
-            pause(randint(2000, 5000))
-            customerOrders.push(dish)
-        })
-    }
-
-
     let dishReadyLock = false
     function dishReady() {
 
@@ -123,10 +117,22 @@ namespace restaurant {
         }
 
         dishReadyLock = true
-
-        story.startCutscene(()=>{
+        
+        story.startCutsceneOf(1000, ()=>{
             let dish = randomPop(customerOrders);
             story.startCutscene(()=>{
+                story.spriteSayText(cookStaff, "开始做" + dish)
+                
+                let randtime = randint(5, 8)
+                let s = ""
+                for (let i = 0; i < randtime; i++) {
+                    if (i % 3 == 0) {
+                        s = ""
+                    }
+                    s += "."
+                    story.spriteSayText(cookStaff, s)
+                    pause(1000)
+                }
                 story.spriteSayText(cookStaff, dish + "做好了")
                 if (dishReadyHandler == null) {
                     story.spriteSayText(cookStaff, "没人来取")
@@ -135,12 +141,12 @@ namespace restaurant {
                 }  else {
                     let userJudgeCustomer = dishReadyHandler(dish)
                     story.spriteSayText(cookStaff, "请" + sprites.readDataNumber(userJudgeCustomer, ORDER_NO) + "号客人取餐")
-                    story.spriteMoveToLocation(userJudgeCustomer, 80, 88, 80)
+                    story.spriteMoveToLocation(userJudgeCustomer, 120, 72, 80)
 
                     let nextCustomer =  nextCustomerFor(dish)
                     if (nextCustomer != userJudgeCustomer) {
                         story.spriteSayText(nextCustomer, "!!")
-                        story.spriteMoveToLocation(nextCustomer, 80, 88, 96)
+                        story.spriteMoveToLocation(nextCustomer, 120, 72, 96)
                         story.spriteSayText(nextCustomer, "我先来的啊")
                         story.spriteSayText(nextCustomer, "怎么搞的")
                         game.over(false)
@@ -157,6 +163,8 @@ namespace restaurant {
 
                     story.spriteSayText(userJudgeCustomer, "谢谢")
                     story.spriteMoveToLocation(userJudgeCustomer, 176, userJudgeCustomer.y, 100)
+                    userJudgeCustomer.destroy()
+                    info.changeScoreBy(1)
             }
 
                 dishReadyLock = false
@@ -218,7 +226,7 @@ namespace restaurant {
             . . . . 1 1 1 1 1 1 1 1 . . . .
             . . . . . f f f f f f . . . . .
         `)
-        tiles.placeOnTile(cookStaff, tiles.getTileLocation(6, 2))
+        tiles.placeOnTile(cookStaff, tiles.getTileLocation(7, 2))
 
         forever(()=>{
             if (waitingForOrderCustomers.length<4 && Math.percentChance(40)) {
@@ -242,10 +250,18 @@ namespace restaurant {
 
 
 
+    //% blockId=on_cusomter_order
+    //% block="客人下单"
+    //% draggableParameters
     export function onCustomerOrder(cb: (customer:Sprite, dish : string) => void) {
         customerOrderHandler = cb
     }
 
+
+
+    //% blockId=on_dish_ready
+    //% block="叫号取餐"
+    //% draggableParameters
     export function onDishReady(cb:(dish:string) => Sprite) {
         dishReadyHandler = cb;
     }
