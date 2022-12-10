@@ -1,4 +1,5 @@
-// 在此处添加您的代码
+//%icon="\u2303"
+//%block="餐厅的故事"
 namespace restaurant {
 
 
@@ -178,6 +179,7 @@ namespace restaurant {
 
 
     //% blockId=on_init
+    //% group="准备营业"
     //% block="开门营业"
     export function init() {
         
@@ -254,6 +256,7 @@ namespace restaurant {
 
     //% blockId=on_cusomter_order
     //% block="客人下单"
+    //% group="点单"
     //% draggableParameters
     export function onCustomerOrder(cb: (customer:Sprite, dish : string) => void) {
         customerOrderHandler = cb
@@ -261,6 +264,7 @@ namespace restaurant {
 
     //% blockId=prepare_menu
     //% block="写好菜单 %menu"
+    //% group="准备营业"
     export function prepareMenu(menu : string[]) {
         if (menu.length < 3) {
             game.splash("就这么几道菜还学人开餐厅")
@@ -274,6 +278,7 @@ namespace restaurant {
 
     //% blockId=on_dish_ready
     //% block="出餐"
+    //% group="厨房"
     //% draggableParameters
     export function onDishReady(cb:(dish:string) => void) {
         dishReadyHandler = cb;
@@ -283,6 +288,7 @@ namespace restaurant {
 
     //% blockId=call_customer_to_collect
     //% block="叫 $customer=variables_get(mySprite) 取餐"
+    //% group="厨房"
     export function callCustomerToCollect(customer : Sprite) {
         userJudgeCustomer = customer
     }
