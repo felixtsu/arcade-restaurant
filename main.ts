@@ -1,12 +1,14 @@
 restaurant.onDishReady(function (dish) {
-    for (let customer of orderCustomers) {
-        if (sprites.readDataString(customer, "ORDER") == dish) {
-            restaurant.callCustomerToCollect(customer)
-        }
-    }
+    restaurant.callCustomerToCollect(orderCustomer)
 })
 restaurant.onCustomerOrder(function (customer, dish) {
-    orderCustomers.push(customer)
+    orderCustomer = customer
 })
-let orderCustomers: Sprite[] = []
+let orderCustomer: Sprite = null
+restaurant.prepareMenu([
+"番茄蛋",
+"牛肉饼",
+"拉面",
+"烧鸡"
+])
 restaurant.init()

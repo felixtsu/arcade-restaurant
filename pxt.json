@@ -1,5 +1,5 @@
 {
-    "name": "queue",
+    "name": "restaurant",
     "description": "",
     "dependencies": {
         "device": "*",
@@ -27,5 +27,5 @@
     "supportedTargets": [
         "arcade"
     ],
-    "preferredEditor": "blocksprj"
+    "preferredEditor": "tsprj"
 }

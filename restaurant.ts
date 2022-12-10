@@ -11,10 +11,10 @@ namespace restaurant {
     
     let waitStaff:Sprite = null
     let cookStaff:Sprite = null
-    const MENU = ["西红柿炒蛋", "蛋炒饭", "土豆牛肉"]
+    let MENU = ["西红柿炒蛋", "蛋炒饭", "土豆牛肉"]
     const CUSTOMER_IMAGES :Image[]= []
     
-    let orderNo = 1000
+    let orderNo = 1
 
     const waitingForOrderCustomers:Sprite[] = []
     const waitingForDishesCustomers:Sprite[] = []
@@ -146,7 +146,7 @@ namespace restaurant {
                     let nextCustomer =  nextCustomerFor(dish)
                     if (nextCustomer != userJudgeCustomer) {
                         story.spriteSayText(nextCustomer, "!!")
-                        story.spriteMoveToLocation(nextCustomer, 120, 72, 96)
+                        story.spriteMoveToLocation(nextCustomer, 108, 72, 96)
                         story.spriteSayText(nextCustomer, "我先来的啊")
                         story.spriteSayText(nextCustomer, "怎么搞的")
                         game.over(false)
@@ -178,7 +178,7 @@ namespace restaurant {
 
 
     //% blockId=on_init
-    //% block="开始餐厅的故事"
+    //% block="开门营业"
     export function init() {
         
         CUSTOMER_IMAGES.push(assets.image`customer1`)
@@ -259,6 +259,17 @@ namespace restaurant {
         customerOrderHandler = cb
     }
 
+    //% blockId=prepare_menu
+    //% block="写好菜单 %menu"
+    export function prepareMenu(menu : string[]) {
+        if (menu.length < 3) {
+            game.splash("就这么几道菜还学人开餐厅")
+            game.splash("至少准备三道菜啊")
+            game.over(false)
+        }
+
+        MENU = menu
+    }
 
 
     //% blockId=on_dish_ready
