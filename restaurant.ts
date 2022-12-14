@@ -1,27 +1,25 @@
-//%icon="\u2303"
 //%block="餐厅的故事"
+//%weight=100 icon="\u2303"
 namespace restaurant {
-
 
     const ORDER = "ORDER"
     const ORDER_NO = "ORDER_NO"
 
-
-    let customerOrderHandler: (customer: Sprite, dish:string)=>void = null
+    let customerOrderHandler: (customer: Sprite, dish: string) => void = null
     let dishReadyHandler: (dish: string) => void = null
-    
-    let waitStaff:Sprite = null
-    let cookStaff:Sprite = null
+
+    let waitStaff: Sprite = null
+    let cookStaff: Sprite = null
     let MENU = ["西红柿炒蛋", "蛋炒饭", "土豆牛肉"]
-    const CUSTOMER_IMAGES :Image[]= []
-    
+    const CUSTOMER_IMAGES: Image[] = []
+
     let orderNo = 1
 
-    const waitingForOrderCustomers:Sprite[] = []
-    const waitingForDishesCustomers:Sprite[] = []
-    const customerOrders :string[]= []
+    const waitingForOrderCustomers: Sprite[] = []
+    const waitingForDishesCustomers: Sprite[] = []
+    const customerOrders: string[] = []
 
-    function randomPick<T>(collection : T[]):T {
+    function randomPick<T>(collection: T[]): T {
         return collection[randint(0, collection.length - 1)]
     }
 
@@ -29,10 +27,10 @@ namespace restaurant {
         return collection.removeAt(randint(0, collection.length - 1))
     }
 
-    function findPlaceInQueueFor(newCustomer : Sprite) {
+    function findPlaceInQueueFor(newCustomer: Sprite) {
 
         if (waitingForOrderCustomers.length == 0) {
-            story.spriteMoveToLocation(newCustomer, 40,  72, 50)
+            story.spriteMoveToLocation(newCustomer, 40, 72, 50)
         } else {
             let tail = waitingForOrderCustomers[waitingForOrderCustomers.length - 1]
             story.spriteMoveToLocation(newCustomer, 40, tail.y + 16, 50)
@@ -56,7 +54,7 @@ namespace restaurant {
 
         story.startCutsceneOf(1001, () => {
             let dish = randomPick(MENU)
-            
+
             sprites.setDataString(orderingCustomer, ORDER, dish)
             sprites.setDataNumber(orderingCustomer, ORDER_NO, orderNo)
             story.spriteSayText(waitStaff, "要吃点什么?", 15, 1, story.TextSpeed.VeryFast)
@@ -70,7 +68,7 @@ namespace restaurant {
             story.spriteMoveToLocation(orderingCustomer, 120 + randint(-32, 32), 88 + randint(-16, 16), 80)
 
             customerOrders.push(dish)
-            
+
             if (customerOrderHandler != null) {
                 customerOrderHandler(orderingCustomer, dish)
             }
@@ -83,24 +81,19 @@ namespace restaurant {
 
             orderingLock = false
         })
-
-
     }
-
 
     function customerEnter() {
         let newCustomer = sprites.create(randomPick(CUSTOMER_IMAGES));
         tiles.placeOnTile(newCustomer, tiles.getTileLocation(2, 7))
 
         let dish = MENU[randint(0, MENU.length)]
-        
+
         findPlaceInQueueFor(newCustomer)
         waitingForOrderCustomers.push(newCustomer)
-        
-        
     }
 
-    function nextCustomerFor(dish:string) :Sprite{
+    function nextCustomerFor(dish: string): Sprite {
         for (let c of waitingForDishesCustomers) {
             if (sprites.readDataString(c, ORDER) == dish) {
                 waitingForDishesCustomers.removeElement(c)
@@ -118,12 +111,12 @@ namespace restaurant {
         }
 
         dishReadyLock = true
-        
-        story.startCutsceneOf(1000, ()=>{
+
+        story.startCutsceneOf(1000, () => {
             let dish = randomPop(customerOrders);
-            story.startCutscene(()=>{
+            story.startCutscene(() => {
                 story.spriteSayText(cookStaff, "开始做" + dish)
-                
+
                 let randtime = randint(5, 8)
                 let s = ""
                 for (let i = 0; i < randtime; i++) {
@@ -138,20 +131,11 @@ namespace restaurant {
                 if (dishReadyHandler == null) {
                     story.spriteSayText(cookStaff, "没人来取")
                     story.spriteSayText(cookStaff, "扔了")
-                     
-                }  else {
+
+                } else {
                     dishReadyHandler(dish)
                     story.spriteSayText(cookStaff, "请" + sprites.readDataNumber(userJudgeCustomer, ORDER_NO) + "号客人取餐")
                     story.spriteMoveToLocation(userJudgeCustomer, 120, 72, 80)
-
-                    let nextCustomer =  nextCustomerFor(dish)
-                    if (nextCustomer != userJudgeCustomer) {
-                        story.spriteSayText(nextCustomer, "!!")
-                        story.spriteMoveToLocation(nextCustomer, 108, 72, 96)
-                        story.spriteSayText(nextCustomer, "我先来的啊")
-                        story.spriteSayText(nextCustomer, "怎么搞的")
-                        game.over(false)
-                    }
 
 
                     let orderedDish = sprites.readDataString(userJudgeCustomer, ORDER)
@@ -161,20 +145,23 @@ namespace restaurant {
                         game.over(false)
                     }
 
+                    let nextCustomer = nextCustomerFor(dish)
+                    if (nextCustomer != userJudgeCustomer) {
+                        story.spriteSayText(nextCustomer, "!!")
+                        story.spriteMoveToLocation(nextCustomer, 108, 72, 96)
+                        story.spriteSayText(nextCustomer, "我先来的啊")
+                        story.spriteSayText(nextCustomer, "怎么搞的")
+                        game.over(false)
+                    }
 
                     story.spriteSayText(userJudgeCustomer, "谢谢")
                     story.spriteMoveToLocation(userJudgeCustomer, 176, userJudgeCustomer.y, 100)
                     userJudgeCustomer.destroy()
                     info.changeScoreBy(1)
-            }
-
+                }
                 dishReadyLock = false
-
             })
-            
         })
-
-
     }
 
 
@@ -182,13 +169,12 @@ namespace restaurant {
     //% group="准备营业"
     //% block="开门营业"
     export function init() {
-        
+
         CUSTOMER_IMAGES.push(assets.image`customer1`)
         CUSTOMER_IMAGES.push(assets.image`customer2`)
         CUSTOMER_IMAGES.push(assets.image`customer3`)
         CUSTOMER_IMAGES.push(assets.image`customer4`)
         CUSTOMER_IMAGES.push(assets.image`customer5`)
-       
 
         tiles.setTilemap(assets.tilemap`default`)
 
@@ -210,7 +196,7 @@ namespace restaurant {
             . . . . c b 5 5 5 5 b c . . . .
             . . . . . f f f f f f . . . . .
         `)
-        tiles.placeOnTile(waitStaff, tiles.getTileLocation(2,2))
+        tiles.placeOnTile(waitStaff, tiles.getTileLocation(2, 2))
 
         cookStaff = sprites.create(img`
             . . . . 9 9 9 9 9 9 9 9 9 . . .
@@ -232,8 +218,8 @@ namespace restaurant {
         `)
         tiles.placeOnTile(cookStaff, tiles.getTileLocation(7, 2))
 
-        forever(()=>{
-            if (waitingForOrderCustomers.length<4 && Math.percentChance(40)) {
+        forever(() => {
+            if (waitingForOrderCustomers.length < 4 && Math.percentChance(40)) {
                 customerEnter()
             }
             pause(1000)
@@ -245,53 +231,46 @@ namespace restaurant {
             pause(10)
         })
 
-        forever(()=> {
+        forever(() => {
             dishReady()
             pause(10)
         })
     }
 
-
-
-
     //% blockId=on_cusomter_order
     //% block="客人下单"
     //% group="点单"
     //% draggableParameters
-    export function onCustomerOrder(cb: (customer:Sprite, dish : string) => void) {
+    export function onCustomerOrder(cb: (customer: Sprite, dish: string) => void) {
         customerOrderHandler = cb
     }
 
     //% blockId=prepare_menu
     //% block="写好菜单 %menu"
     //% group="准备营业"
-    export function prepareMenu(menu : string[]) {
+    export function prepareMenu(menu: string[]) {
         if (menu.length < 3) {
             game.splash("就这么几道菜还学人开餐厅")
             game.splash("至少准备三道菜啊")
             game.over(false)
         }
-
         MENU = menu
     }
-
 
     //% blockId=on_dish_ready
     //% block="出餐"
     //% group="厨房"
     //% draggableParameters
-    export function onDishReady(cb:(dish:string) => void) {
+    export function onDishReady(cb: (dish: string) => void) {
         dishReadyHandler = cb;
     }
 
-    let userJudgeCustomer :Sprite = null
+    let userJudgeCustomer: Sprite = null
 
     //% blockId=call_customer_to_collect
     //% block="叫 $customer=variables_get(mySprite) 取餐"
     //% group="厨房"
-    export function callCustomerToCollect(customer : Sprite) {
+    export function callCustomerToCollect(customer: Sprite) {
         userJudgeCustomer = customer
     }
-
-    
 }
